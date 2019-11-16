@@ -19,7 +19,7 @@ if test -d `pwd`"/Tasmota"; then
         echo -e "Running Docker Tasmota for builds:"
         ## Display builds
         if  [ $# -eq 0 ]; then
-            echo -e "defined in platformio.ini\n\nNOTICE: \e[31mDefault is ALL BUILDS!!!!\e[0m\n"
+            echo -e "defined in platformio.ini\n\nNOTICE: \e[31mDefault is ALL BUILDS!!!!\e[0m\nIf you want to quit use ctrl+C"
             sleep 3
             else
                 for build in "$@"
@@ -41,9 +41,9 @@ if test -d `pwd`"/Tasmota"; then
         ## Run container with provided arguments
         echo -n "Compiling..."
         if  [ $# -ne 0 ]; then
-            docker run -it --rm -v `pwd`/Tasmota:/tasmota blakadder/docker-tasmota $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
+            docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
             else
-            docker run -it --rm -v `pwd`/Tasmota:/tasmota blakadder/docker-tasmota > docker-tasmota.log 2>&1 
+            docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota > docker-tasmota.log 2>&1 
             echo "Find your builds in .pioenvs/<build-flavour>/firmware.bin"
         fi
         echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
