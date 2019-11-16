@@ -73,7 +73,7 @@ else
             case ${answer:0:1} in
                 y|yes )
                     git clone https://github.com/arendst/Tasmota.git
-                    ./$(basename $0) && exit   
+                    bash $(basename $0) && exit   
                 ;;
                 * )
                     exit 1
