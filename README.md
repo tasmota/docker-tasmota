@@ -1,7 +1,25 @@
 # Docker-Tasmota
-Quickly setup a build environment for [Tasmota](https://github.com/arendst/Tasmota) in Docker
+Quickly set up a build environment for [Tasmota](https://github.com/arendst/Tasmota) using Docker
 
-## How to use
+## compile.sh
+This bash script makes compiling a lot easier without the need to type lengthy commands each time.
+
+compile.sh is intended to run on a linux machine with docker and git installed. If you're missing any of these the script will pop a warning with instructions how to install.
+
+Running the script for the first time will pull the latest blakadder/docker-tasmota container, clone the latest development branch of Tasmota inside the script folder and start building ALL builds as defined in platformio.ini.
+
+Running the script with one or more build names (as listed in platformio.ini) as parameters will compile only those builds regardless of platformio.ini
+
+`./compile.sh tasmota-sensors tasmota-PT`    
+compiles both the tasmota-sensors.bin and the portuguese language version of Tasmota
+
+If you have a `user_config_override.h` or `platformio.ini` file with your custom settings you can put them in the script folder and they will be used on the next script run.
+
+Script will update the repo folder with the latest one every run.
+
+To check compiling logs use `cat docker-tasmota.log`
+
+## How to use the docker container
 1. Clone this repo and cd to the dir where its cloned:    
     `git clone https://github.com/tasmota/docker-tasmota`      
     `cd docker-tasmota`   

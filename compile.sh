@@ -10,61 +10,65 @@ if test -d `pwd`"/Tasmota"; then
     echo -e "Checking Tasmota GitHub for the most recent development version"
     cd Tasmota
     git fetch --all
-    git reset --hard origin/development
+    git reset --hard origin/development > /dev/null
     git pull
     cd $rundir
+    echo -e "\nRunning Docker Tasmota\n"
+    ## Check script dir for custom user_config_override.h
+    if test -f "user_config_override.h"; then
+        cp user_config_override.h Tasmota/tasmota/user_config_override.h
+        echo -e "Using your user_config_override.h and overwriting the existing file\n"
+    fi
     # Check if docker installed
     if [[ "$(type -t docker)" == "file" ]] ; then
-        ## Display chosen builds
-        echo -e "Running Docker Tasmota for builds:"
         ## Display builds
         if  [ $# -eq 0 ]; then
-            echo -e "defined in platformio.ini\n\nNOTICE: \e[31mDefault is ALL BUILDS!!!!\e[0m\nIf you want to quit use ctrl+C"
-            sleep 3
+            ## Check script dir for custom platformio.ini
+            if test -f "platformio.ini"; then
+                echo -e "Compiling builds defined in custom platformio.ini. Default file is overwritten.\n"
+                cp platformio.ini Tasmota/platformio.ini
+                else
+                echo -e "\e[31mCompiling ALL BUILDS!!!!\n\n\e[7mIf you wish to quit use ctrl+C\e[0m"
+                sleep 4
+            fi
             else
+                ## Display chosen builds
+                echo -e "Compiling builds:"
                 for build in "$@"
                 do
                     echo -e "$build"
                     sleep 1
                 done
-        fi
-
-        ## Check script dir for custom platformio.ini or user_config_override.h
-        if test -f "platformio.ini"; then
-            cp platformio.ini Tasmota/platformio.ini
-            echo -e "Using your platformio.ini and overwriting the default file"
-        fi
-        if test -f "user_config_override.h"; then
-            cp user_config_override.h Tasmota/tasmota/user_config_override.h
-            echo -e "Using your user_config_override.h and overwriting the default file\n"
+                echo -e "\n"
         fi
         ## Run container with provided arguments
         echo -n "Compiling..."
         if  [ $# -ne 0 ]; then
             docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
+            echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
             else
             docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota > docker-tasmota.log 2>&1 
-            echo "Find your builds in .pioenvs/<build-flavour>/firmware.bin"
+            echo -e "\\r${CHECK_MARK} Finished! \tCompilation log in docker-tasmota.log\n"
+            echo -e "Find your builds in $rundir/Tasmota/.pioenvs/<build-name>/firmware.bin\n"
         fi
-        echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
         ## After docker is completed copy firmware to script dir and rename to buildname
         for build in "$@"
         do
         cp "$rundir"/Tasmota/.pioenvs/"$build"/firmware.bin "$rundir"/"$build".bin
             if test -f "$build".bin; then
-                echo -e "Completed! Your firmware is $rundir/$build.bin\n"
+                echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
             else
                 echo -e "\e[31m\e[5mWARNING:\e[0m"
                 echo -e "Something went wrong while compiling $build. Check compilation log\n"
             fi  
         done
     else
-        if [[ "$(type -t curl)" != "file" ]] ; then
-            echo -e "Please install "curl" to proceed"
-            exit 1
-        else
+        # if [[ "$(type -t curl)" != "file" ]] ; then
+        #     echo -e "Please install "curl" to proceed"
+        #     exit 1
+        # else
         echo -e "\nNo Docker detected. Please install docker:\n\n\tcurl -fsSL https://get.docker.com -o get-docker.sh\n\tsh get-docker.sh\n"
-        fi
+        # fi
     fi
 else
     if [[ "$(type -t git)" == "file" ]] ; then
