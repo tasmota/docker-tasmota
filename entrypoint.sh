@@ -9,7 +9,7 @@ if [ -d $TASMOTA_VOLUME ]; then
 	cd $TASMOTA_VOLUME
 	if [ -n "$(env | grep ^TASMOTA_)" ]; then
 		echo "Deleting original $USER_CONFIG_OVERRIDE and overwriting with provided options."
-		rm "$USER_CONFIG_OVERRIDE"
+		cp "$USER_CONFIG_OVERRIDE" "$USER_CONFIG_OVERRIDE".old
 		#export PLATFORMIO_BUILD_FLAGS='-DUSE_CONFIG_OVERRIDE'
 		sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' platformio.ini
 		echo '#ifndef _USER_CONFIG_OVERRIDE_H_' >> $USER_CONFIG_OVERRIDE

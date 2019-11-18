@@ -13,7 +13,7 @@ Running the script with one or more build names (as listed in platformio.ini) as
 `./compile.sh tasmota-sensors tasmota-PT`    
 compiles both the tasmota-sensors.bin and the portuguese language version of Tasmota
 
-If you have a `user_config_override.h` or `platformio.ini` file with your custom settings you can put them in the script folder and they will be used on the next script run.
+If you have a `user_config_override.h` or `platformio.ini` file with your custom settings you can put them in the script folder and they will be used on the next script run. 
 
 Script will update the repo folder with the latest one every run.
 

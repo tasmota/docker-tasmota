@@ -14,11 +14,6 @@ if test -d `pwd`"/Tasmota"; then
     git pull
     cd $rundir
     echo -e "\nRunning Docker Tasmota\n"
-    ## Check script dir for custom user_config_override.h
-    if test -f "user_config_override.h"; then
-        cp user_config_override.h Tasmota/tasmota/user_config_override.h
-        echo -e "Using your user_config_override.h and overwriting the existing file\n"
-    fi
     # Check if docker installed
     if [[ "$(type -t docker)" == "file" ]] ; then
         ## Display builds
@@ -41,15 +36,26 @@ if test -d `pwd`"/Tasmota"; then
                 done
                 echo -e "\n"
         fi
+        ## Check script dir for custom user_config_override.h
+        if test -f "user_config_override.h"; then
+            sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
+            cp user_config_override.h Tasmota/tasmota/user_config_override.h
+            echo -e "Using your user_config_override.h and overwriting the existing file\n"
+        fi
         ## Run container with provided arguments
         echo -n "Compiling..."
         if  [ $# -ne 0 ]; then
-            docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
-            echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
+                if [[ $@ == "tasmota"* ]]; then
+                    docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
+                    echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
+                    else
+                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-basic\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\nFor translated builds:\ntasmota-BG [BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
+                    exit 1
+                fi
             else
             docker run -it --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID blakadder/docker-tasmota > docker-tasmota.log 2>&1 
             echo -e "\\r${CHECK_MARK} Finished! \tCompilation log in docker-tasmota.log\n"
-            echo -e "Find your builds in $rundir/Tasmota/.pioenvs/<build-name>/firmware.bin\n"
+            echo -e "Find your builds in $rundir/Tasmota/build_output/firmware\n"
         fi
         ## After docker is completed copy firmware to script dir and rename to buildname
         for build in "$@"
@@ -63,10 +69,6 @@ if test -d `pwd`"/Tasmota"; then
             fi  
         done
     else
-        # if [[ "$(type -t curl)" != "file" ]] ; then
-        #     echo -e "Please install "curl" to proceed"
-        #     exit 1
-        # else
         echo -e "\nNo Docker detected. Please install docker:\n\n\tcurl -fsSL https://get.docker.com -o get-docker.sh\n\tsh get-docker.sh\n"
         # fi
     fi
