@@ -1,7 +1,7 @@
 FROM python:3
 
 LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO"
-LABEL version="7.1"
+LABEL version="7.1.1"
 LABEL maintainer="https://github.com/tasmota"
 
 
