@@ -6,20 +6,38 @@ CHECK_MARK="\033[0;32m\xE2\x9C\x94\033[0m"
 rundir=$(dirname $(readlink -f $0))
 
 # use default docker-tasmota image from hub.docker.com
-$DOCKER_IMAGE=blakadder/docker-tasmota
+DOCKER_IMAGE=blakadder/docker-tasmota
 # or uncomment and change if you want to run a locally built image
-#$DOCKER_IMAGE=docker-tasmota
+#DOCKER_IMAGE=docker-tasmota
+
+# set to `true` to use latest stable tag
+# set to `false` to use `development` branch
+USE_STABLE=0
 
 
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
 if test -d `pwd`"/Tasmota"; then
-    echo -e "Checking Tasmota GitHub for the most recent development version"
     cd Tasmota
     git fetch --all
-    git reset --hard origin/development > /dev/null
-    git pull
+    git fetch --tags
+    if [ "$USE_STABLE" = "1" ]; then
+        echo -e "Checking Tasmota GitHub for the most recent release version"
+        TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
+        git checkout --force $TASMOTA_BRANCH >/dev/null 2>&1
+    else
+        echo -e "Checking Tasmota GitHub for the most recent development version"
+        TASMOTA_BRANCH=development
+        git reset --hard origin/$TASMOTA_BRANCH > /dev/null 2>&1
+        git pull origin $TASMOTA_BRANCH > /dev/null 2>&1
+    fi
+
+    if [ -z "$TASMOTA_BRANCH" ]; then
+        echo -e "Failed to fetch/set Tasmota branch! Check internet connection and try again."
+        exit 1
+    fi
+    
     cd $rundir
-    echo -e "\nRunning Docker Tasmota\n"
+    echo -e "\nRunning Docker Tasmota (branch/tag: $TASMOTA_BRANCH)\n"
     # Check if docker installed
     if [[ "$(type -t docker)" == "file" ]] ; then
         ## Display builds
