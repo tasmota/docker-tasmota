@@ -1,13 +1,13 @@
-FROM python:3
+FROM python:latest
 
-LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO"
-LABEL version="8.1"
-LABEL maintainer="https://github.com/tasmota"
-
+LABEL description="Docker Container with a cožmplete build environment for Tasmota using PlatformIO" \
+      version="8.2" \
+      maintainer="blakadder_" \
+      organization="https://github.com/tasmota"       
 
 # Install platformio. 
 RUN pip install --upgrade pip &&\ 
-    pip install -U platformio
+    pip install --upgrade platformio
 
 # Init project
 COPY init_pio_tasmota /init_pio_tasmota
@@ -19,6 +19,8 @@ RUN cd /init_pio_tasmota &&\
     rm -fr init_pio_tasmota &&\ 
     cp -r /root/.platformio / &&\ 
     chmod -R 777 /.platformio
+
+RUN platformio upgrade
 
 COPY entrypoint.sh /entrypoint.sh
 
