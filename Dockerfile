@@ -22,6 +22,8 @@ RUN cd /init_pio_tasmota &&\
 
 RUN platformio upgrade
 
+RUN platformio platform update
+
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
