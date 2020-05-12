@@ -21,17 +21,21 @@ To check compiling logs use `cat docker-tasmota.log`
 
 ## How to use the docker container
 1. Clone this repo and cd to the dir where its cloned:    
-    `git clone https://github.com/tasmota/docker-tasmota`      
-    `cd docker-tasmota`   
-    `cd Tasmota`   
+    ```
+    git clone https://github.com/tasmota/docker-tasmota
+    cd docker-tasmota
+    ```
 
-2. Run this to build the docker container:   
-`docker build -t docker-tasmota .`
+2. Run this to build the docker container:
+    `docker build -t docker-tasmota .`
 
    1. _Instead of 1. and 2:_ grab the docker image with `docker pull blakadder/docker-tasmota`
 
-3. Move to another directory where you want to clone Tasmota repo 
-`git clone https://github.com/arendst/Tasmota.git`
+3. Move to another directory where you want to clone Tasmota repo:
+    ```
+    git clone https://github.com/arendst/Tasmota.git
+    cd Tasmota
+    ```
 
 4. From the same directory run to compile the desired build   
 `docker run -ti --rm -v $(pwd)/Tasmota:/tasmota -u $UID:$GID docker-tasmota -e tasmota-PT`
