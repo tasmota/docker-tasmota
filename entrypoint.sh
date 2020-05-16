@@ -8,7 +8,7 @@ if [ -d $TASMOTA_VOLUME ]; then
 	cd $TASMOTA_VOLUME
 	echo "Compiling Tasmota..."
 	pio run $@
-	echo "All done! Find your builds in build_output/firmware/"
+	echo "All done! Find your builds in Tasmota/build_output/firmware/"
 else
 	echo ">>> NO TASMOTA VOLUME MOUNTED --> EXITING"
 	exit 0;
