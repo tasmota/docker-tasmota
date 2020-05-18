@@ -5,28 +5,50 @@
 CHECK_MARK="\033[0;32m\xE2\x9C\x94\033[0m"
 rundir=$(dirname $(readlink -f $0))
 
+# use default docker-tasmota image from hub.docker.com
+DOCKER_IMAGE=blakadder/docker-tasmota
+# or uncomment and change if you want to run a locally built image
+#DOCKER_IMAGE=docker-tasmota
+
+# set to `true` to use latest stable tag
+# set to `false` to use `development` branch
+USE_STABLE=0
+
+
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
 if test -d `pwd`"/Tasmota"; then
-    echo -e "Downloading latest Tasmota version from GitHub"
     cd Tasmota
-    rm build_output/firmware/* > /dev/null
-#    git fetch --all
-#    git reset --hard origin/development > /dev/null
-    git stash  > /dev/null
-    git pull
+    git fetch --all
+    git fetch --tags
+    if [ "$USE_STABLE" = "1" ]; then
+        echo -e "Checking Tasmota GitHub for the most recent release version"
+        TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
+        git checkout --force $TASMOTA_BRANCH >/dev/null 2>&1
+    else
+        echo -e "Checking Tasmota GitHub for the most recent development version"
+        TASMOTA_BRANCH=development
+        git reset --hard origin/$TASMOTA_BRANCH > /dev/null 2>&1
+        git pull origin $TASMOTA_BRANCH > /dev/null 2>&1
+    fi
+
+    if [ -z "$TASMOTA_BRANCH" ]; then
+        echo -e "Failed to fetch/set Tasmota branch! Check internet connection and try again."
+        exit 1
+    fi
+    
     cd $rundir
-    echo -e "\nRunning Docker Tasmota\n"
+    echo -e "\nRunning Docker Tasmota (branch/tag: $TASMOTA_BRANCH)\n"
     # Check if docker installed
     if [[ "$(type -t docker)" == "file" ]] ; then
         ## Display builds
         if  [ $# -eq 0 ]; then
-            ## Check script dir for platformio_override.ini
-            if test -f "platformio_override.ini"; then
-                echo -e "Compiling builds defined in platformio_override.ini. Existing file is overwritten.\n"
-                cp platformio_override.ini Tasmota/platformio_override.ini
+            ## Check script dir for custom platformio.ini
+            if test -f "platformio.ini"; then
+                echo -e "Compiling builds defined in custom platformio.ini. Default file is overwritten.\n"
+                cp platformio.ini Tasmota/platformio.ini
                 else
-                echo -e "\e[31mCompiling ALL BUILDS using default platformio.ini!!!!\n\n\e[7mIf you wish to quit use ctrl+C\e[0m"
-                sleep 5
+                echo -e "\e[31mCompiling ALL BUILDS!!!!\n\n\e[7mIf you wish to quit use ctrl+C\e[0m"
+                sleep 4
             fi
             else
                 ## Display chosen builds
@@ -40,9 +62,9 @@ if test -d `pwd`"/Tasmota"; then
         fi
         ## Check script dir for custom user_config_override.h
         if test -f "user_config_override.h"; then
-            # sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
+            sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
             cp user_config_override.h Tasmota/tasmota/user_config_override.h
-            echo -e "Using local user_config_override.h and overwriting the existing one\n"
+            echo -e "Using your user_config_override.h and overwriting the existing file\n"
         fi
         ## Run container with provided arguments
         echo -n "Compiling..."
@@ -52,7 +74,7 @@ if test -d `pwd`"/Tasmota"; then
                     docker run ${DOCKER_TTY} --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
                     echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
                     else
-                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-lite\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\nFor translated builds:\ntasmota-BG [BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
+                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-basic\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\nFor translated builds:\ntasmota-BG [BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
                     exit 1
                 fi
             else
@@ -63,9 +85,9 @@ if test -d `pwd`"/Tasmota"; then
         ## After docker is completed copy firmware to script dir and rename to buildname
         for build in "$@"
         do
-        cp "$rundir"/Tasmota/build_output/firmware/"$build".* "$rundir"
+        cp "$rundir"/Tasmota/.pioenvs/"$build"/firmware.bin "$rundir"/"$build".bin
             if test -f "$build".bin; then
-                echo -e "Completed! Your firmware is in $rundir\n"
+                echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
             else
                 echo -e "\e[31m\e[5mWARNING:\e[0m"
                 echo -e "Something went wrong while compiling $build. Check compilation log\n"
@@ -81,7 +103,7 @@ else
         read -p "Enter to exit, "yes" to proceed: " answer
             case ${answer:0:1} in
                 y|yes )
-                    git clone --no-single-branch --depth 1 https://github.com/arendst/Tasmota.git
+                    git clone https://github.com/arendst/Tasmota.git
                     bash $(basename $0) && exit   
                 ;;
                 * )
@@ -93,4 +115,3 @@ else
         exit 1
     fi
 fi
-
