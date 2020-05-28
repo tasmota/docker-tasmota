@@ -6,7 +6,7 @@ This bash script makes compiling a lot easier without the need to type lengthy c
 
 compile.sh is intended to run on a linux machine with docker and git installed. If you're missing any of these the script will pop a warning with instructions how to install.
 
-Running the script for the first time will pull the latest blakadder/docker-tasmota container, clone the latest Tasmota inside the script folder and copy platformio_override.ini and user_config_override.h to Tasmota folder.
+Running the script for the first time will pull the latest blakadder/docker-tasmota container (you can edit the script to use your own docker container), clone the latest Tasmota development branch (you can change to clone the latest stable release version by setting `USE_STABLE=1`) inside the script folder and copy platformio_override.ini and user_config_override.h to Tasmota folder.
 
 Running the script with one or more build names (as listed in platformio_tasmota_ev.ini) as parameters will compile only those builds regardless of platformio.ini or platformio_override.ini
 

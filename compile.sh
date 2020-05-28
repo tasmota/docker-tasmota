@@ -10,8 +10,8 @@ DOCKER_IMAGE=blakadder/docker-tasmota
 # or uncomment and change if you want to run a locally built image
 #DOCKER_IMAGE=docker-tasmota
 
-# set to `true` to use latest stable tag
-# set to `false` to use `development` branch
+# Set to `1=true` to use latest stable release tag
+# Set to `0"false` to use `development` branch (default)
 USE_STABLE=0
 
 
@@ -37,15 +37,15 @@ if test -d `pwd`"/Tasmota"; then
     fi
     
     cd $rundir
-    echo -e "\nRunning Docker Tasmota (branch/tag: $TASMOTA_BRANCH)\n"
+    echo -e "\nRunning Docker Tasmota on Tasmota version $TASMOTA_BRANCH\n"
     # Check if docker installed
     if [[ "$(type -t docker)" == "file" ]] ; then
         ## Display builds
         if  [ $# -eq 0 ]; then
-            ## Check script dir for custom platformio.ini
-            if test -f "platformio.ini"; then
-                echo -e "Compiling builds defined in custom platformio.ini. Default file is overwritten.\n"
-                cp platformio.ini Tasmota/platformio.ini
+            ## Check script dir for platformio_override.ini
+            if test -f "platformio_override.ini"; then
+                echo -e "Compiling builds defined in platformio_override.ini. Default file is overwritten.\n"
+                cp platformio_override.ini Tasmota/platformio_override.ini
                 else
                 echo -e "\e[31mCompiling ALL BUILDS!!!!\n\n\e[7mIf you wish to quit use ctrl+C\e[0m"
                 sleep 4
@@ -62,7 +62,8 @@ if test -d `pwd`"/Tasmota"; then
         fi
         ## Check script dir for custom user_config_override.h
         if test -f "user_config_override.h"; then
-            sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
+        ## new Tasmota builds have this enabled as default
+        ##    sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
             cp user_config_override.h Tasmota/tasmota/user_config_override.h
             echo -e "Using your user_config_override.h and overwriting the existing file\n"
         fi
@@ -74,7 +75,7 @@ if test -d `pwd`"/Tasmota"; then
                     docker run ${DOCKER_TTY} --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
                     echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
                     else
-                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-basic\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\nFor translated builds:\ntasmota-BG [BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
+                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-basic\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\nFor translated builds:\ntasmota-[BG,BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]\n\nFor ESP32 Tasmota32 builds:\ntasmota32\ttasmota32-minimal\ttasmota32-webcam\ntasmota32-lite\ttasmota32-display\ttasmota32-sensors\ntasmota32-knx\ttasmota32-ir\t\ttasmota32-ircustom\ntasmota32-[BG,BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
                     exit 1
                 fi
             else
@@ -103,7 +104,7 @@ else
         read -p "Enter to exit, "yes" to proceed: " answer
             case ${answer:0:1} in
                 y|yes )
-                    git clone https://github.com/arendst/Tasmota.git
+                    git clone https://github.com/arendst/Tasmota.git --branch development
                     bash $(basename $0) && exit   
                 ;;
                 * )
