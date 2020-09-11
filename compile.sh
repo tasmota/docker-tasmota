@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Copy this bash script to a directory below /Tasmota and run from there
-
 CHECK_MARK="\033[0;32m\xE2\x9C\x94\033[0m"
 rundir=$(dirname $(readlink -f $0))
-
+buildsdir="$rundir/builds"
 # use default docker-tasmota image from hub.docker.com
 DOCKER_IMAGE=blakadder/docker-tasmota
 # or uncomment and change if you want to run a locally built image
@@ -12,7 +11,7 @@ DOCKER_IMAGE=blakadder/docker-tasmota
 
 # Set to `1=true` to use latest stable release tag
 # Set to `0"false` to use `development` branch (default)
-USE_STABLE=0
+USE_STABLE=1
 
 
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
@@ -80,15 +79,20 @@ if test -d `pwd`"/Tasmota"; then
                 fi
             else
             docker run ${DOCKER_TTY} --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID $DOCKER_IMAGE > docker-tasmota.log 2>&1 
+            mv -f $rundir/Tasmota/build_output/firmware/* $buildsdir/
             echo -e "\\r${CHECK_MARK} Finished! \tCompilation log in docker-tasmota.log\n"
-            echo -e "Find your builds in $rundir/Tasmota/build_output/firmware\n"
+            echo -e "Find your builds in $buildsdir\n"
         fi
-        ## After docker is completed copy firmware to script dir and rename to buildname
+        ## After docker is completed copy firmware to builds dir and rename to buildname
+        if  ! test -d "$buildsdir"; then
+            mkdir -p "$buildsdir"
+        fi
         for build in "$@"
         do
-        cp "$rundir"/Tasmota/.pioenvs/"$build"/firmware.bin "$rundir"/"$build".bin
-            if test -f "$build".bin; then
-                echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
+        cp "$rundir"/Tasmota/.pioenvs/"$build"/firmware.bin "$buildsdir"/"$build".bin
+            if test -f "$buildsdir/$build".bin; then
+                gzip -k -f "$buildsdir/$build".bin
+                echo -e "Completed! Your firmware is in $buildsdir/$build.bin[.gz]\n"
             else
                 echo -e "\e[31m\e[5mWARNING:\e[0m"
                 echo -e "Something went wrong while compiling $build. Check compilation log\n"

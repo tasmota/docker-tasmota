@@ -1,2 +1,5 @@
 Tasmota/
 *.log
+user_config_override.h
+platformio_ovveride.ini
+builds/
