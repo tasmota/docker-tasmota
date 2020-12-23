@@ -18,8 +18,8 @@ USE_STABLE=0
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
 if test -d `pwd`"/Tasmota"; then
     cd Tasmota
-    git fetch --all
-    git fetch --tags
+    git fetch https://github.com/arendst/Tasmota.git development
+    git fetch --all --tags
     if [ "$USE_STABLE" = "1" ]; then
         echo -e "Checking Tasmota GitHub for the most recent release version"
         TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
