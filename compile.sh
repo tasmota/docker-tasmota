@@ -43,7 +43,7 @@ if test -d `pwd`"/Tasmota"; then
         ## Display builds
         if  [ $# -eq 0 ]; then
             ## Check script dir for platformio_override.ini
-            if test -f "platformio_override.ini"; then
+            if test -e "platformio_override.ini"; then
                 echo -e "Compiling builds defined in platformio_override.ini. Default file is overwritten.\n"
                 cp platformio_override.ini Tasmota/platformio_override.ini
                 else
