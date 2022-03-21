@@ -43,7 +43,7 @@ if test -d `pwd`"/Tasmota"; then
         ## Display builds
         if  [ $# -eq 0 ]; then
             ## Check script dir for platformio_override.ini
-            if test -f "platformio_override.ini"; then
+            if test -e "platformio_override.ini"; then
                 echo -e "Compiling builds defined in platformio_override.ini. Default file is overwritten.\n"
                 cp platformio_override.ini Tasmota/platformio_override.ini
                 else
@@ -61,7 +61,7 @@ if test -d `pwd`"/Tasmota"; then
                 echo -e "\n"
         fi
         ## Check script dir for custom user_config_override.h
-        if test -f "user_config_override.h"; then
+        if test -e "user_config_override.h"; then
         ## new Tasmota builds have this enabled as default
         ##    sed -i 's/^; *-DUSE_CONFIG_OVERRIDE/                            -DUSE_CONFIG_OVERRIDE/' Tasmota/platformio.ini
             cp user_config_override.h Tasmota/tasmota/user_config_override.h
@@ -87,7 +87,7 @@ if test -d `pwd`"/Tasmota"; then
         for build in "$@"
         do
         cp "$rundir"/Tasmota/.pio/build/"$build"/firmware.bin "$rundir"/"$build".bin
-            if test -f "$build".bin; then
+            if test -e "$build".bin; then
                 echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
             else
                 echo -e "\e[31m\e[5mWARNING:\e[0m"
