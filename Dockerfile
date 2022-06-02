@@ -1,7 +1,7 @@
 FROM python:latest
 
 LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO" \
-      version="9.4" \
+      version="11.1" \
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"       
 
