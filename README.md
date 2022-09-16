@@ -36,6 +36,8 @@ To check compiling logs use `cat docker-tasmota.log`
     git clone https://github.com/arendst/Tasmota.git
     ```
 
+If you have a `user_config_override.h` or `platformio_override.ini` file with your custom settings, you will need to put them under `Tasmota/tasmota`.
+
 4. From the same directory run to compile the desired build   
 `docker run -ti --rm -v $(pwd)/Tasmota:/tasmota -u $UID:$GID docker-tasmota -e tasmota-PT`
 
