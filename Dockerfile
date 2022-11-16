@@ -7,8 +7,9 @@ LABEL description="Docker Container with a complete build environment for Tasmot
 
 # Install platformio. 
 RUN pip install --upgrade pip &&\ 
-    pip install --upgrade platformio &&\ 
-    pip install --upgrade zopfli
+    pip install --upgrade platformio
+
+RUN pip install --upgrade zopfli
 
 # Init project
 COPY init_pio_tasmota /init_pio_tasmota
