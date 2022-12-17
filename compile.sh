@@ -75,7 +75,7 @@ if test -d `pwd`"/Tasmota"; then
                     docker run ${DOCKER_TTY} --rm -v `pwd`/Tasmota:/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
                     echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
                     else
-                    echo -e "\\r\e[31mNot a valid buildname.\e[0m Try one of the builds:\ntasmota\t\ttasmota-minimal\ttasmota-basic\ttasmota-ircustom\ntasmota-knx\ttasmota-sensors\ttasmota-display\ttasmota-ir\ttasmota-zbbridge\nFor translated builds:\ntasmota-[BG,BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]\n\nFor ESP32 Tasmota32 builds:\ntasmota32\ttasmota32-minimal\ttasmota32-webcam\ntasmota32-lite\ttasmota32-display\ttasmota32-sensors\ntasmota32-knx\ttasmota32-ir\t\ttasmota32-ircustom\ntasmota32-[BG,BR,CN,CZ,DE,ES,FR,GR,HE,HU,IT,KO,NL,PL,PT,RU,SE,SK,TR,TW,UK]"
+                    echo -e "\\r\e[31mNot a valid build environment."
                     exit 1
                 fi
             else
@@ -86,7 +86,7 @@ if test -d `pwd`"/Tasmota"; then
         ## After docker is completed copy firmware to script dir and rename to buildname
         for build in "$@"
         do
-        cp "$rundir"/Tasmota/.pio/build/"$build"/firmware.bin "$rundir"/"$build".bin
+        cp "$rundir"/Tasmota/build_output/"$build"* "$rundir"/
             if test -e "$build".bin; then
                 echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
             else
