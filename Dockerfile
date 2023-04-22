@@ -14,6 +14,8 @@ COPY init_pio_tasmota /init_pio_tasmota
 
 # Install project dependencies using a init project.
 RUN cd /init_pio_tasmota &&\ 
+    platformio upgrade &&\
+    pio pkg update &&\
     pio run &&\
     cd ../ &&\ 
     rm -fr init_pio_tasmota &&\ 
@@ -22,9 +24,6 @@ RUN cd /init_pio_tasmota &&\
     mkdir /.cache /.local &&\
     chmod -R 777 /.cache /.local
 
-RUN platformio upgrade
-
-RUN platformio platform update
 
 COPY entrypoint.sh /entrypoint.sh
 
