@@ -23,4 +23,4 @@ jobs:
       - name: Clone Tasmota repo
         run: git clone https://github.com/arendst/Tasmota.git
       - name: Build a firmware
-        run: bash ./compile.sh
+        run: bash ./compile.sh tasmota tasmota32
