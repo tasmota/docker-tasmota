@@ -1,0 +1,14 @@
+name: Tasmota Docker test
+
+on:
+  push:
+  workflow_dispatch:  # Manually start a workflow
+
+jobs:
+  tas-docker:
+    name: Build Tasmota with Docker
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build a firmware
+      run: bash ./build.sh
