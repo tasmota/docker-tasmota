@@ -25,9 +25,11 @@ if test -d "`pwd`/Tasmota"; then
     git fetch https://github.com/arendst/Tasmota.git development
     git fetch --all --tags
     if [ "$USE_STABLE" = "1" ]; then
-        echo -e "Checking Tasmota GitHub for the most recent release version"
-        TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
-        git checkout --force $TASMOTA_BRANCH >/dev/null 2>&1
+        if [ -z "${TASMOTA_BRANCH}" ]; then
+            echo -e "Checking Tasmota GitHub for the most recent release version"
+            TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
+            git checkout --force $TASMOTA_BRANCH >/dev/null 2>&1
+        fi
     else
         echo -e "Checking Tasmota GitHub for the most recent development version"
         TASMOTA_BRANCH=development
