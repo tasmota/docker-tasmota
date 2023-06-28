@@ -15,9 +15,13 @@ DOCKER_IMAGE=${DOCKER_IMAGE:="blakadder/docker-tasmota"}
 # Set to `0=false` to use `development` branch (default)
 USE_STABLE=${USE_STABLE:="0"}
 
-# Set to `1=true` to use latest stable release tag
-# Set to `0=false` to use `development` branch (default)
 USE_VOLUME=${USE_VOLUME:="`pwd`/Tasmota"}
+
+if [ "$USE_TEE" = "1" ]; then
+    USE_TEE="| tee -a "
+else
+    USE_TEE=">"
+fi
 
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
 if test -d "`pwd`/Tasmota"; then
@@ -78,14 +82,14 @@ if test -d "`pwd`/Tasmota"; then
         test -t 1 && DOCKER_TTY="-it"
         if  [ $# -ne 0 ]; then
                 if [[ $@ == "tasmota"* ]]; then
-                    docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) > docker-tasmota.log 2>&1 
+                    docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) 2>&1 ${USE_TEE} docker-tasmota.log
                     echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
                     else
                     echo -e "\\r\e[31mNot a valid build environment."
                     exit 1
                 fi
             else
-            docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE > docker-tasmota.log 2>&1 
+            docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE  2>&1 ${USE_TEE} docker-tasmota.log
             echo -e "\\r${CHECK_MARK} Finished! \tCompilation log in docker-tasmota.log\n"
             echo -e "Find your builds in $rundir/Tasmota/build_output/firmware\n"
         fi
