@@ -17,12 +17,6 @@ USE_STABLE=${USE_STABLE:="0"}
 
 USE_VOLUME=${USE_VOLUME:="`pwd`/Tasmota"}
 
-if [ "$USE_TEE" = "1" ]; then
-    USE_TEE="| tee -a "
-else
-    USE_TEE=">"
-fi
-
 ## Check whether Tasmota/ exists and fetch newest Tasmota version from development branch
 if test -d "`pwd`/Tasmota"; then
     cd Tasmota
@@ -82,16 +76,24 @@ if test -d "`pwd`/Tasmota"; then
         ## Run container with provided arguments
         echo -n "Compiling..."
         test -t 1 && DOCKER_TTY="-it"
-        if  [ $# -ne 0 ]; then
-                if [[ $@ == "tasmota"* ]]; then
-                    docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) 2>&1 ${USE_TEE} docker-tasmota.log
-                    echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
-                    else
-                    echo -e "\\r\e[31mNot a valid build environment."
-                    exit 1
+        if [ $# -ne 0 ]; then
+            if [[ $@ == "tasmota"* ]]; then
+                if [ "${USE_TEE}" = "1" ]; then
+                    docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) 2>&1 | tee ${TEE_PARAMETER} docker-tasmota.log
+                else
+                    docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE $(printf ' -e %s' $@) 2>&1 > docker-tasmota.log
                 fi
+                echo -e "\\r${CHECK_MARK} Finished!  \tCompilation log in docker-tasmota.log\n"
             else
-            docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE  2>&1 ${USE_TEE} docker-tasmota.log
+                echo -e "\\r\e[31mNot a valid build environment."
+                exit 1
+            fi
+        else
+            if [ "${USE_TEE}" = "1" ]; then
+                docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE 2>&1 | tee ${TEE_PARAMETER} docker-tasmota.log
+            else
+                docker run ${DOCKER_TTY} --rm -v "${USE_VOLUME}":/tasmota -u $UID:$GID $DOCKER_IMAGE 2>&1 > docker-tasmota.log
+            fi
             echo -e "\\r${CHECK_MARK} Finished! \tCompilation log in docker-tasmota.log\n"
             echo -e "Find your builds in $rundir/Tasmota/build_output/firmware\n"
         fi
@@ -104,7 +106,7 @@ if test -d "`pwd`/Tasmota"; then
             else
                 echo -e "\e[31m\e[5mWARNING:\e[0m"
                 echo -e "Something went wrong while compiling $build. Check compilation log\n"
-            fi  
+            fi
         done
     else
         echo -e "\nNo Docker detected. Please install docker:\n\n\tcurl -fsSL https://get.docker.com -o get-docker.sh\n\tsh get-docker.sh\n"
