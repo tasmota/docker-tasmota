@@ -100,7 +100,7 @@ if test -d "`pwd`/Tasmota"; then
         ## After docker is completed copy firmware to script dir and rename to buildname
         for build in "$@"
         do
-        cp "$rundir"/Tasmota/build_output/"$build"* "$rundir"/
+        cp "$rundir"/Tasmota/build_output/firmware/"$build"* "$rundir"/
             if test -e "$build".bin; then
                 echo -e "Completed! Your firmware is in $rundir/$build.bin\n"
             else
