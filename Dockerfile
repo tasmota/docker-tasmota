@@ -24,7 +24,7 @@ RUN cd /init_pio_tasmota &&\
     rm -fr init_pio_tasmota &&\ 
     cp -r /root/.platformio / &&\ 
     mkdir /.cache /.local &&\
-    chmod -R 777 /.platformio /usr/local/lib /.cache /.local
+    chmod -R 777 /.platformio /usr/local/lib /usr/local/bin /.cache /.local
 
 COPY entrypoint.sh /entrypoint.sh
 
