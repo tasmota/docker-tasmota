@@ -25,7 +25,7 @@ if test -d "`pwd`/Tasmota"; then
     if [ "$USE_STABLE" = "1" ]; then
         if [ -z "${TASMOTA_BRANCH}" ]; then
             echo -e "Checking Tasmota GitHub for the most recent release version"
-            TASMOTA_BRANCH=$(wget -qO - https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oP 'tag_name"\s*:\s*"\K[^"]+')
+            TASMOTA_BRANCH=$(curl -s https://api.github.com/repos/arendst/Tasmota/releases/latest | grep -oE '"tag_name"[[:space:]]*:[[:space:]]*"[^"]+"' | cut -d'"' -f4)
         else
             echo -e "getting version \"${TASMOTA_BRANCH}\" from GitHub"
         fi
