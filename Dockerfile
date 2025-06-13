@@ -5,6 +5,9 @@ LABEL description="Docker Container with a complete build environment for Tasmot
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"       
 
+# Disable pip root user warning
+ENV PIP_ROOT_USER_ACTION=ignore
+
 # Install platformio. 
 RUN pip install --upgrade pip &&\ 
     pip install --upgrade platformio
@@ -23,8 +26,6 @@ RUN cd /init_pio_tasmota &&\
     mkdir /.cache /.local &&\
     chmod -R 777 /.platformio /usr/local/lib /.cache /.local
 
-
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
-
