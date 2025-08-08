@@ -12,16 +12,22 @@ RUN pip install --upgrade pip uv
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_CACHE_DIR=/.cache/uv
 
-# Install system dependencies including build-essential
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
     python3-dev python3-venv build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Try to get newer libstdc++ from existing sources
-RUN apt-get update && \
-    apt-get install -y --only-upgrade libstdc++6 gcc g++ && \
+# Install GCC 13 from Debian testing
+RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list.d/testing.list && \
+    echo "Package: *" > /etc/apt/preferences.d/testing && \
+    echo "Pin: release a=testing" >> /etc/apt/preferences.d/testing && \
+    echo "Pin-Priority: 50" >> /etc/apt/preferences.d/testing && \
+    apt-get update && \
+    apt-get install -y -t testing gcc-13 g++-13 libstdc++6 && \
+    rm /etc/apt/sources.list.d/testing.list && \
+    rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies system-wide
