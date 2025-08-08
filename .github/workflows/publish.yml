@@ -1,5 +1,7 @@
 name: Publish Docker
-on: [push]
+on:
+  push:
+  workflow_dispatch:  # Manually start a workflow
 jobs:
   build:
     runs-on: ubuntu-latest
