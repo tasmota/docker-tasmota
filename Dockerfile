@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev python3-venv build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install GCC 13 from Debian testing
+# Install GCC 13 from Debian testing to support GLIBCXX_3.4.32 (required for mklittlefs)
 RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list.d/testing.list && \
     echo "Package: *" > /etc/apt/preferences.d/testing && \
     echo "Pin: release a=testing" >> /etc/apt/preferences.d/testing && \
@@ -30,7 +30,7 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies system-wide
+# Install Python dependencies system-wide using uv
 RUN uv pip install --upgrade \
     click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size \
@@ -41,11 +41,10 @@ RUN mkdir -p /.platformio /.cache /.local /tmp \
     && chmod -R 777 /.platformio /.cache /.local /tmp \
                     /usr/local/lib /usr/local/bin
 
-# Pre-create and configure penv for ESP-IDF tools
+# Pre-create and configure penv for ESP-IDF tools using uv
 RUN mkdir -p /.platformio/penv && \
-    python3 -m venv /.platformio/penv && \
-    /.platformio/penv/bin/pip install --upgrade pip && \
-    /.platformio/penv/bin/pip install \
+    uv venv /.platformio/penv && \
+    uv pip install --python /.platformio/penv/bin/python \
         click setuptools wheel virtualenv pyserial \
         cryptography pyparsing pyelftools && \
     chmod -R 777 /.platformio/penv
