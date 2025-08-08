@@ -12,53 +12,45 @@ RUN pip install --upgrade pip uv
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_CACHE_DIR=/.cache/uv
 
-# Install system dependencies required by ESP-IDF tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
+    python3-dev python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies required by idf_tools.py
+# Install Python dependencies system-wide
 RUN uv pip install --upgrade \
-    click \
-    setuptools \
-    wheel \
-    virtualenv \
-    pyserial \
+    click setuptools wheel virtualenv pyserial \
+    cryptography pyparsing pyelftools \
     platformio
 
-# Create all necessary directories with full permissions
-RUN mkdir -p /.platformio \
-             /.cache \
-             /penv \
-             /.local \
-             /tmp \
-             /root/.platformio \
-    && chmod -R 777 /.platformio \
-                    /.cache \
-                    /penv \
-                    /.local \
-                    /tmp \
-                    /root \
-                    /usr/local/lib \
-                    /usr/local/bin
+# Create base directories with proper permissions
+RUN mkdir -p /.platformio /.cache /.local /tmp \
+    && chmod -R 777 /.platformio /.cache /.local /tmp \
+                    /usr/local/lib /usr/local/bin
 
-# Additional permissions after PlatformIO installation
-RUN chmod -R 777 /usr/local/lib/python*/site-packages/
+# Pre-create and configure penv for ESP-IDF tools
+RUN mkdir -p /.platformio/penv && \
+    python3 -m venv /.platformio/penv && \
+    /.platformio/penv/bin/pip install --upgrade pip && \
+    /.platformio/penv/bin/pip install \
+        click setuptools wheel virtualenv pyserial \
+        cryptography pyparsing pyelftools && \
+    chmod -R 777 /.platformio/penv
 
-# Init project
+# Copy project
 COPY init_pio_tasmota /init_pio_tasmota
 
-# Install project dependencies with verbose output for debugging
-RUN cd /init_pio_tasmota &&\ 
-    platformio upgrade &&\
-    pio pkg update &&\
-    pio run --verbose &&\
-    cd ../ &&\ 
-    rm -fr init_pio_tasmota &&\ 
-    cp -r /root/.platformio / &&\ 
-    chmod -R 777 /.platformio /.cache /.local &&\ 
-    chmod -R 777 /usr/local/lib/python*/site-packages/
+# Install project dependencies
+RUN cd /init_pio_tasmota && \
+    platformio upgrade && \
+    pio pkg update && \
+    pio run && \
+    cd ../ && \
+    rm -fr init_pio_tasmota && \
+    cp -r /root/.platformio / && \
+    chmod -R 777 /.platformio /.cache /.local
 
 COPY entrypoint.sh /entrypoint.sh
 
