@@ -5,18 +5,19 @@ LABEL description="Docker Container with a complete build environment for Tasmot
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"       
 
-# Disable pip root user warning
-ENV PIP_ROOT_USER_ACTION=ignore
+# Install uv package manager
+RUN pip install --upgrade pip uv
 
-# Install platformio
-RUN pip install --upgrade pip &&\ 
-    pip install --upgrade platformio
+# Configure uv environment variables
+ENV UV_SYSTEM_PYTHON=1
+ENV UV_CACHE_DIR=/.cache/uv
 
-# global pip configuration
-RUN mkdir -p /etc/pip && \
-    echo "[global]" > /etc/pip/pip.conf && \
-    echo "root-user-action = ignore" >> /etc/pip/pip.conf && \
-    echo "no-warn-script-location = true" >> /etc/pip/pip.conf
+# Install platformio using uv
+RUN uv pip install --upgrade platformio
+
+# Create uv cache directory and set permissions
+RUN mkdir -p /.cache/uv /.local &&\
+    chmod -R 777 /.cache /.local
 
 # Init project
 COPY init_pio_tasmota /init_pio_tasmota
@@ -29,7 +30,6 @@ RUN cd /init_pio_tasmota &&\
     cd ../ &&\ 
     rm -fr init_pio_tasmota &&\ 
     cp -r /root/.platformio / &&\ 
-    mkdir /.cache /.local &&\
     chmod -R 777 /.platformio /usr/local/lib /usr/local/bin /.cache /.local &&\ 
     chmod -R 777 /usr/local/lib/python*/site-packages/
 
