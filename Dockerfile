@@ -12,17 +12,23 @@ RUN pip install --upgrade pip uv
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_CACHE_DIR=/.cache/uv
 
-# Install system dependencies
+# Install system dependencies with software-properties-common
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
-    python3-dev python3-venv \
+    python3-dev python3-venv software-properties-common \
     && rm -rf /var/lib/apt/lists/*
+
+# Add Ubuntu Toolchain PPA and update libstdc++
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update && \
+    apt-get install -y --only-upgrade libstdc++6 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies system-wide
 RUN uv pip install --upgrade \
     click setuptools wheel virtualenv pyserial \
-    cryptography pyparsing pyelftools \
+    cryptography pyparsing pyelftools esp-idf-size \
     platformio
 
 # Create base directories with proper permissions
