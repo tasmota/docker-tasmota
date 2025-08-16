@@ -34,7 +34,10 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
 RUN mkdir -p /.platformio /.platformio/penv /.platformio/.cache/downloads /.platformio/.cache/content \
              /.platformio/.cache/http /.platformio/.cache/tmp /.platformio/dist /.platformio/packages \
              /.platformio/platforms /.platformio/tools /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
-    chmod -R 777 /.platformio /.platformio/penv /.cache /.local /tmp /usr/local/lib /usr/local/bin
+    chmod -R 777 /.platformio /.platformio/penv /.platformio/.cache/downloads /.platformio/.cache/content \
+             /.platformio/.cache/http /.platformio/.cache/tmp /.platformio/dist /.platformio/packages \
+             /.platformio/platforms /.platformio/tools /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin \
+             /.cache
 
 # Install basic Python dependencies system-wide using uv
 RUN uv pip install --upgrade \
