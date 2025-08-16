@@ -30,14 +30,9 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Create all working directories and set permissions in a single layer
-RUN mkdir -p /.platformio /.platformio/penv /.platformio/.cache/downloads /.platformio/.cache/content \
-             /.platformio/.cache/http /.platformio/.cache/tmp /.platformio/dist /.platformio/packages \
-             /.platformio/platforms /.platformio/tools /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
-    chmod -R 777 /.platformio /.platformio/penv /.platformio/.cache/downloads /.platformio/.cache/content \
-             /.platformio/.cache/http /.platformio/.cache/tmp /.platformio/dist /.platformio/packages \
-             /.platformio/platforms /.platformio/tools /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin \
-             /.cache
+# Create directories and set permissions in a single layer
+RUN mkdir -p /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
+    chmod -R 777 /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.cache
 
 # Install basic Python dependencies system-wide using uv
 RUN uv pip install \
@@ -50,7 +45,7 @@ RUN uv pip install https://github.com/Jason2866/platformio-core/archive/refs/tag
 # Pre-create and configure penv using uv
 RUN uv venv /.platformio/penv && \
     /.platformio/penv/bin/python -m ensurepip && \
-    /.platformio/penv/bin/python -m pip install pip uv && \
+    uv pip install --python /.platformio/penv/bin/python uv && \
     /.platformio/penv/bin/uv pip install \
         click setuptools wheel virtualenv pyserial \
         cryptography pyparsing pyelftools
