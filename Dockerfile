@@ -40,21 +40,17 @@ RUN mkdir -p /.platformio /.platformio/penv /.platformio/.cache/downloads /.plat
              /.cache
 
 # Install basic Python dependencies system-wide using uv
-RUN uv pip install --upgrade \
+RUN uv pip install \
     click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size
 
-# Download and install Tasmota pio core version
-RUN cd /tmp && \
-    wget https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip && \
-    unzip v6.1.18.zip && \
-    cd platformio-core-6.1.18 && \
-    uv pip install .
+# Install Tasmota pio core version
+RUN uv pip install https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
 # Pre-create and configure penv using uv
 RUN uv venv /.platformio/penv && \
-    /.platformio/penv/bin/python -m ensurepip --upgrade && \
-    /.platformio/penv/bin/python -m pip install --upgrade pip uv && \
+    /.platformio/penv/bin/python -m ensurepip && \
+    /.platformio/penv/bin/python -m pip install pip uv && \
     /.platformio/penv/bin/uv pip install \
         click setuptools wheel virtualenv pyserial \
         cryptography pyparsing pyelftools
