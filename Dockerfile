@@ -31,8 +31,8 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm -rf /var/lib/apt/lists/*
 
 # Create all working directories and set permissions in a single layer
-RUN mkdir -p /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
-    chmod -R 777 /.platformio /.cache /.local /tmp /usr/local/lib /usr/local/bin
+RUN mkdir -p /.platformio /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
+    chmod -R 777 /.platformio /.platformio/penv /.cache /.local /tmp /usr/local/lib /usr/local/bin
 
 # Install basic Python dependencies system-wide using uv
 RUN uv pip install --upgrade \
@@ -58,14 +58,14 @@ RUN uv venv /.platformio/penv && \
 ENV PATH="/.platformio/penv/bin:$PATH"
 ENV UV_PYTHON="/.platformio/penv/bin/python"
 
-COPY init_pio_tasmota /init_pio_tasmota
+#COPY init_pio_tasmota /init_pio_tasmota
 
-# Build project and copy platformio cache
-RUN cd /init_pio_tasmota && \
-    pio run && \
-    cd ../ && \
-    rm -fr init_pio_tasmota && \
-    cp -r /root/.platformio /
+## Build project and copy platformio cache
+#RUN cd /init_pio_tasmota && \
+#    pio run && \
+#    cd ../ && \
+#    rm -fr init_pio_tasmota && \
+#    cp -r /root/.platformio /
 
 COPY entrypoint.sh /entrypoint.sh
 
