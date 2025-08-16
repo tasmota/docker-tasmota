@@ -58,6 +58,7 @@ RUN cd /init_pio_tasmota && \
     cd ../ && \
     rm -fr init_pio_tasmota && \
     cp -r /root/.platformio /
+    rm -f /.platformio/*.lock
 
 COPY entrypoint.sh /entrypoint.sh
 
