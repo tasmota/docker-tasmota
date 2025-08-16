@@ -47,13 +47,21 @@ RUN mkdir -p /.platformio /.cache /.local /tmp \
     && chmod -R 777 /.platformio /.cache /.local /tmp \
                     /usr/local/lib /usr/local/bin
 
-# Pre-create and configure penv for ESP-IDF tools using uv
+# Pre-create and configure penv with uv support
 RUN mkdir -p /.platformio/penv && \
     uv venv /.platformio/penv && \
-    uv pip install --python /.platformio/penv/bin/python \
+    # Install uv inside the virtual environment
+    /.platformio/penv/bin/pip install --upgrade pip uv && \
+    # Install basic dependencies
+    /.platformio/penv/bin/pip install \
         click setuptools wheel virtualenv pyserial \
         cryptography pyparsing pyelftools && \
-    chmod -R 777 /.platformio/penv
+    # Make sure uv can write to cache and install packages
+    chmod -R 777 /.platformio/penv /.cache
+
+# Set environment variables for penv uv usage
+ENV PATH="/.platformio/penv/bin:$PATH"
+ENV UV_PYTHON="/.platformio/penv/bin/python"
 
 # Copy project
 COPY init_pio_tasmota /init_pio_tasmota
