@@ -59,14 +59,14 @@ RUN uv venv /.platformio/penv && \
 ENV PATH="/.platformio/penv/bin:$PATH"
 ENV UV_PYTHON="/.platformio/penv/bin/python"
 
-#COPY init_pio_tasmota /init_pio_tasmota
+COPY init_pio_tasmota /init_pio_tasmota
 
-## Build project and copy platformio cache
-#RUN cd /init_pio_tasmota && \
-#    pio run && \
-#    cd ../ && \
-#    rm -fr init_pio_tasmota && \
-#    cp -r /root/.platformio /
+# Build project and copy platformio cache
+RUN cd /init_pio_tasmota && \
+    pio run && \
+    cd ../ && \
+    rm -fr init_pio_tasmota && \
+    cp -r /root/.platformio /
 
 COPY entrypoint.sh /entrypoint.sh
 
