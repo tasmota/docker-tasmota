@@ -8,11 +8,11 @@ LABEL description="Docker Container with a complete build environment for Tasmot
 # Install uv package manager
 RUN pip install --upgrade pip uv
 
-# Configure uv environment variables
+# Environment variables for uv
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_CACHE_DIR=/.cache/uv
 
-# Install system dependencies
+# Install required system dependencies
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
@@ -30,51 +30,42 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies system-wide using uv
+# Create all working directories and set permissions in a single layer
+RUN mkdir -p /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
+    chmod -R 777 /.platformio /.cache /.local /tmp /usr/local/lib /usr/local/bin
+
+# Install basic Python dependencies system-wide using uv
 RUN uv pip install --upgrade \
     click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size
 
-# Download and install custom PlatformIO version
+# Download and install Tasmota pio core version
 RUN cd /tmp && \
     wget https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip && \
     unzip v6.1.18.zip && \
     cd platformio-core-6.1.18 && \
     uv pip install .
 
-# Create base directories with proper permissions
-RUN mkdir -p /.platformio /.cache /.local /tmp \
-    && chmod -R 777 /.platformio /.cache /.local /tmp \
-                    /usr/local/lib /usr/local/bin
-
-# Pre-create and configure penv with uv support
-RUN mkdir -p /.platformio/penv && \
-    uv venv /.platformio/penv && \
-    # Ensure pip is present in the venv (needed for compatibility)
+# Pre-create and configure penv using uv
+RUN uv venv /.platformio/penv && \
     /.platformio/penv/bin/python -m ensurepip --upgrade && \
-    # Install uv in the virtual environment for faster package operations
     /.platformio/penv/bin/python -m pip install --upgrade pip uv && \
-    # Use uv for fast installation of basic Python dependencies
     /.platformio/penv/bin/uv pip install \
         click setuptools wheel virtualenv pyserial \
-        cryptography pyparsing pyelftools && \
-    # Set full permissions so uv can install packages at runtime as needed
-    chmod -R 777 /.platformio/penv /.cache
+        cryptography pyparsing pyelftools
 
 # Set environment variables for penv uv usage
 ENV PATH="/.platformio/penv/bin:$PATH"
 ENV UV_PYTHON="/.platformio/penv/bin/python"
 
-# Copy project
 COPY init_pio_tasmota /init_pio_tasmota
 
-# Install project dependencies
+# Build project and copy platformio cache
 RUN cd /init_pio_tasmota && \
     pio run && \
     cd ../ && \
     rm -fr init_pio_tasmota && \
-    cp -r /root/.platformio / && \
-    chmod -R 777 /.platformio /.cache /.local
+    cp -r /root/.platformio /
 
 COPY entrypoint.sh /entrypoint.sh
 
