@@ -52,10 +52,10 @@ RUN mkdir -p /.platformio/penv && \
     uv venv /.platformio/penv && \
     # Ensure pip is present in the venv (uv venv may not include pip by default)
     /.platformio/penv/bin/python -m ensurepip --upgrade && \
-    # Upgrade pip and also install uv into the virtual environment
-    /.platformio/penv/bin/pip install --upgrade pip uv && \
+    # Upgrade pip and install uv using python -m pip instead of direct pip call
+    /.platformio/penv/bin/python -m pip install --upgrade pip uv && \
     # Install basic Python dependencies required for PlatformIO and ESP-IDF operation
-    /.platformio/penv/bin/pip install \
+    /.platformio/penv/bin/python -m pip install \
         click setuptools wheel virtualenv pyserial \
         cryptography pyparsing pyelftools && \
     # Set full permissions so uv can install packages at runtime as needed
