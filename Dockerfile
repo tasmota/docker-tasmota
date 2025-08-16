@@ -16,7 +16,7 @@ ENV UV_CACHE_DIR=/.cache/uv
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
-    python3-dev python3-venv build-essential \
+    python3-dev python3-venv build-essential unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GCC 13 from Debian testing to support GLIBCXX_3.4.32 (required for mklittlefs)
@@ -33,8 +33,14 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
 # Install Python dependencies system-wide using uv
 RUN uv pip install --upgrade \
     click setuptools wheel virtualenv pyserial \
-    cryptography pyparsing pyelftools esp-idf-size \
-    platformio
+    cryptography pyparsing pyelftools esp-idf-size
+
+# Download and install custom PlatformIO version
+RUN cd /tmp && \
+    wget https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip && \
+    unzip v6.1.18.zip && \
+    cd platformio-core-6.1.18 && \
+    uv pip install .
 
 # Create base directories with proper permissions
 RUN mkdir -p /.platformio /.cache /.local /tmp \
