@@ -10,6 +10,9 @@ export UV_CACHE_DIR="/.cache/uv"
 export PATH="/.platformio/penv/bin:$PATH"
 export PYTHON="/.platformio/penv/bin/python"
 
+# Pre-create ESP-IDF venv directories that might be needed
+mkdir -p /.platformio/penv/.espidf-{5.3.3,5.3.4,5.4.2,5.4.3,5.5.0,5.5.1} 2>/dev/null || true
+
 TASMOTA_VOLUME='/tasmota'
 
 if [ -d $TASMOTA_VOLUME ]; then
