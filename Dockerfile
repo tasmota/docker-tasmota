@@ -31,7 +31,9 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm -rf /var/lib/apt/lists/*
 
 # Create all working directories and set permissions in a single layer
-RUN mkdir -p /.platformio /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
+RUN mkdir -p /.platformio /.platformio/penv /.platformio/.cache/downloads /.platformio/.cache/content \
+             /.platformio/.cache/http /.platformio/.cache/tmp /.platformio/dist /.platformio/packages \
+             /.platformio/platforms /.platformio/tools /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
     chmod -R 777 /.platformio /.platformio/penv /.cache /.local /tmp /usr/local/lib /usr/local/bin
 
 # Install basic Python dependencies system-wide using uv
