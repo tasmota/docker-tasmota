@@ -6,7 +6,7 @@ LABEL description="Docker Container with a complete build environment for Tasmot
       organization="https://github.com/tasmota"
 
 # Install uv package manager
-RUN pip install --upgrade pip uv
+RUN pip install pip uv
 
 # Environment variables for uv
 ENV UV_SYSTEM_PYTHON=1
