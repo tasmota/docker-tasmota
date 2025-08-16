@@ -70,8 +70,6 @@ COPY init_pio_tasmota /init_pio_tasmota
 
 # Install project dependencies
 RUN cd /init_pio_tasmota && \
-    platformio upgrade && \
-    pio pkg update && \
     pio run && \
     cd ../ && \
     rm -fr init_pio_tasmota && \
