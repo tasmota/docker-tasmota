@@ -34,25 +34,21 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
 RUN mkdir -p /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
     chmod -R 777 /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.cache
 
-# Install basic Python dependencies system-wide using uv
-RUN uv pip install \
-    click setuptools wheel virtualenv pyserial \
-    cryptography pyparsing pyelftools esp-idf-size
-
-# Install Tasmota pio core version
-RUN uv pip install https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
-
-# Pre-create and configure penv using uv
+# Create penv and install uv and pip
 RUN uv venv /.platformio/penv && \
     /.platformio/penv/bin/python -m ensurepip && \
-    uv pip install --python /.platformio/penv/bin/python uv && \
-    /.platformio/penv/bin/uv pip install \
-        click setuptools wheel virtualenv pyserial \
-        cryptography pyparsing pyelftools
+    uv pip install --python /.platformio/penv/bin/python uv
 
-# Set environment variables for penv uv usage
-ENV PATH="/.platformio/penv/bin:$PATH"
+# Set UV_PYTHON for penv installations
 ENV UV_PYTHON="/.platformio/penv/bin/python"
+# Set environment variables for runtime
+ENV PATH="/.platformio/penv/bin:$PATH"
+
+# Install ALL dependencies ins penv (including PlatformIO)
+RUN uv pip install \
+    click setuptools wheel virtualenv pyserial \
+    cryptography pyparsing pyelftools esp-idf-size \
+    https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
 COPY init_pio_tasmota /init_pio_tasmota
 
