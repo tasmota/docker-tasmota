@@ -9,7 +9,6 @@ export UV_PYTHON="/.platformio/penv/bin/python"
 export UV_CACHE_DIR="/.cache/uv"
 export PATH="/.platformio/penv/bin:$PATH"
 export PYTHON="/.platformio/penv/bin/python"
-export PYTHONPATH="/.platformio/penv/lib/python3.13/site-packages:$PYTHONPATH"
 
 TASMOTA_VOLUME='/tasmota'
 
