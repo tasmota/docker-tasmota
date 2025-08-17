@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.12
 
 LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO" \
       version="14.0" \
@@ -30,23 +30,13 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Create directories and set permissions in a single layer
-RUN mkdir -p /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin && \
-    chmod -R 777 /.platformio/penv /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.cache
+# Create directories and set permissions - include ESP-IDF directories
+RUN mkdir -p /.platformio /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.espressif && \
+    chmod -R 777 /.platformio /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.cache /.espressif
 
-# Create penv and install uv and pip
-RUN uv venv /.platformio/penv && \
-    /.platformio/penv/bin/python -m ensurepip && \
-    uv pip install --python /.platformio/penv/bin/python uv
-
-# Set UV_PYTHON for penv installations
-ENV UV_PYTHON="/.platformio/penv/bin/python"
-# Set environment variables for runtime
-ENV PATH="/.platformio/penv/bin:$PATH"
-
-# Install ALL dependencies ins penv (including PlatformIO)
-RUN uv pip install \
-    click setuptools wheel virtualenv pyserial \
+# Install PlatformIO and dependencies globally to avoid ESP-IDF venv conflicts
+RUN uv pip install --system \
+    "click==8.0.4" setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size \
     https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
@@ -58,7 +48,8 @@ RUN cd /init_pio_tasmota && \
     cd ../ && \
     rm -fr init_pio_tasmota && \
     cp -r /root/.platformio / && \
-    rm -f /.platformio/*.lock
+    rm -f /.platformio/*.lock && \
+    chmod -R 777 /.platformio
 
 COPY entrypoint.sh /entrypoint.sh
 
