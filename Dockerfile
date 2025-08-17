@@ -49,7 +49,16 @@ RUN cd /init_pio_tasmota && \
     rm -fr init_pio_tasmota && \
     cp -r /root/.platformio / && \
     rm -f /.platformio/*.lock && \
-    chmod -R 777 /.platformio
+    chmod -R 777 /.platformio && \
+    # Create a script to fix permissions at runtime
+    echo '#!/bin/bash' > /fix_permissions.sh && \
+    echo 'chown -R $(id -u):$(id -g) /.espressif /.platformio /.cache /.local 2>/dev/null || true' >> /fix_permissions.sh && \
+    echo 'chmod -R 777 /.espressif /.platformio /.cache /.local 2>/dev/null || true' >> /fix_permissions.sh && \
+    echo 'rm -f /.platformio/*.lock 2>/dev/null || true' >> /fix_permissions.sh && \
+    echo '# Clear UV cache to avoid git permission issues' >> /fix_permissions.sh && \
+    echo 'rm -rf /.cache/uv/* 2>/dev/null || true' >> /fix_permissions.sh && \
+    echo 'mkdir -p /.cache/uv && chmod 777 /.cache/uv' >> /fix_permissions.sh && \
+    chmod +x /fix_permissions.sh
 
 COPY entrypoint.sh /entrypoint.sh
 

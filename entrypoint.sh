@@ -4,10 +4,12 @@
 # Set umask so new files/directories get full permissions automatically
 umask 000
 
-# Ensure ESP-IDF directories have proper permissions
-chmod -R 777 /.espressif /.platformio /.cache 2>/dev/null || true
+# Run permission fix script
+/fix_permissions.sh
 
+# Set UV environment variables to avoid cache issues
 export UV_CACHE_DIR="/.cache/uv"
+export UV_NO_CACHE=1
 
 TASMOTA_VOLUME='/tasmota'
 
