@@ -36,7 +36,7 @@ RUN mkdir -p /.platformio /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin 
 
 # Install PlatformIO and dependencies globally to avoid ESP-IDF venv conflicts
 RUN uv pip install --system \
-    "click==8.0.4" setuptools wheel virtualenv pyserial \
+    click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size \
     https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
