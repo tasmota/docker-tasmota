@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04]
+        os: [ubuntu-24.04-arm, ubuntu-24.04]
         python-version: ["3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -18,9 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Docker container
-        run: docker build -t docker-tasmota .
       - name: Clone Tasmota repo
         run: git clone https://github.com/arendst/Tasmota.git
-      - name: Build a firmware
+      - name: Build test firmwares
         run: bash ./compile.sh tasmota tasmota32-zbbrdgpro
