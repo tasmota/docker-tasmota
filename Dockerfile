@@ -8,6 +8,10 @@ LABEL description="Docker Container with a complete build environment for Tasmot
 # Install uv package manager
 RUN pip install uv
 
+# Environment variables for uv
+ENV UV_SYSTEM_PYTHON=1
+ENV UV_CACHE_DIR=/.cache/uv
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
