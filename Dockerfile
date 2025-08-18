@@ -1,22 +1,22 @@
 FROM python:3.12
 
 LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO" \
-      version="14.0" \
+      version="15.0" \
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"
 
 # Install uv package manager
-RUN pip install pip uv
+RUN pip install uv
 
 # Environment variables for uv
 ENV UV_SYSTEM_PYTHON=1
-ENV UV_CACHE_DIR=/.cache/uv
+ENV UV_NO_CACHE=1
 
-# Install required system dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git wget flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
-    python3-dev python3-venv build-essential unzip \
+    python3-dev python3-venv build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GCC 13 from Debian testing to support GLIBCXX_3.4.32 (required for mklittlefs)
@@ -30,35 +30,12 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Create directories and set permissions - include ESP-IDF directories
-RUN mkdir -p /.platformio /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.espressif && \
-    chmod -R 777 /.platformio /.cache/uv /.local /tmp /usr/local/lib /usr/local/bin /.cache /.espressif
-
-# Install PlatformIO and dependencies globally to avoid ESP-IDF venv conflicts
-RUN uv pip install --system \
+# Install PlatformIO and dependencies globally
+RUN uv pip install \
     click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size \
     https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
-COPY init_pio_tasmota /init_pio_tasmota
-
-# Build project and copy platformio cache
-RUN cd /init_pio_tasmota && \
-    pio run && \
-    cd ../ && \
-    rm -fr init_pio_tasmota && \
-    cp -r /root/.platformio / && \
-    rm -f /.platformio/*.lock && \
-    chmod -R 777 /.platformio && \
-    # Create a script to fix permissions at runtime
-    echo '#!/bin/bash' > /fix_permissions.sh && \
-    echo 'chown -R $(id -u):$(id -g) /.espressif /.platformio /.cache /.local 2>/dev/null || true' >> /fix_permissions.sh && \
-    echo 'chmod -R 777 /.espressif /.platformio /.cache /.local 2>/dev/null || true' >> /fix_permissions.sh && \
-    echo 'rm -f /.platformio/*.lock 2>/dev/null || true' >> /fix_permissions.sh && \
-    echo '# Clear UV cache to avoid git permission issues' >> /fix_permissions.sh && \
-    echo 'rm -rf /.cache/uv/* 2>/dev/null || true' >> /fix_permissions.sh && \
-    echo 'mkdir -p /.cache/uv && chmod 777 /.cache/uv' >> /fix_permissions.sh && \
-    chmod +x /fix_permissions.sh
 
 COPY entrypoint.sh /entrypoint.sh
 
