@@ -1,22 +1,23 @@
-# configure build via environment
 #!/bin/bash
 
-# Set umask so new files/directories get full permissions automatically
+# Set umask for new files
 umask 000
-
-# Run permission fix script
-/fix_permissions.sh
-
-# Set UV environment variables to avoid cache issues
-export UV_CACHE_DIR="/.cache/uv"
-export UV_NO_CACHE=1
 
 TASMOTA_VOLUME='/tasmota'
 
 if [ -d $TASMOTA_VOLUME ]; then
     cd $TASMOTA_VOLUME
     echo "Compiling Tasmota..."
+    
+    # Run compilation
     pio run $@
+    
+    # Fix ownership of build output files to match the host user
+    if [ -n "$HOST_UID" ] && [ -n "$HOST_GID" ]; then
+        echo "Fixing file ownership..."
+        chown -R $HOST_UID:$HOST_GID build_output/ 2>/dev/null || true
+    fi
+    
     echo "All done! Find your builds in Tasmota/build_output/firmware/"
 else
     echo ">>> NO TASMOTA VOLUME MOUNTED --> EXITING"
