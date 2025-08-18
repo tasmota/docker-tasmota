@@ -23,6 +23,7 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: blakadder/docker-tasmota:latest-amd64
+        outputs: type=image,name=blakadder/docker-tasmota,push=true
 
   build-arm64:
     name: Build and Push ARM64
@@ -43,6 +44,7 @@ jobs:
         platforms: linux/arm64
         push: true
         tags: blakadder/docker-tasmota:latest-arm64
+        outputs: type=image,name=blakadder/docker-tasmota,push=true
 
   create-manifest:
     name: Create Multi-Arch Manifest
@@ -56,8 +58,8 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Create and Push Manifest
       run: |
-        docker manifest create blakadder/docker-tasmota:latest \
+        docker buildx imagetools create \
+          --tag blakadder/docker-tasmota:latest \
           blakadder/docker-tasmota:latest-amd64 \
           blakadder/docker-tasmota:latest-arm64
-        docker manifest push blakadder/docker-tasmota:latest
 
