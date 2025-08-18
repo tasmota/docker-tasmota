@@ -36,15 +36,6 @@ RUN uv pip install \
     cryptography pyparsing pyelftools esp-idf-size \
     https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
-# Copy project
-COPY init_pio_tasmota /init_pio_tasmota
-
-# Build project and copy platformio cache
-RUN cd /init_pio_tasmota && \
-    pio run && \
-    cd ../ && \
-    rm -fr init_pio_tasmota && \
-    cp -r /root/.platformio /
 
 COPY entrypoint.sh /entrypoint.sh
 
