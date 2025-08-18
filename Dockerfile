@@ -5,8 +5,8 @@ LABEL description="Docker Container with a build environment for Tasmota using P
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"
 
-# Install uv package manager
-RUN pip install uv
+# Copy uv binary from official image  
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Environment variables for uv
 ENV UV_SYSTEM_PYTHON=1
