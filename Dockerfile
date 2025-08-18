@@ -10,7 +10,7 @@ RUN pip install uv
 
 # Environment variables for uv
 ENV UV_SYSTEM_PYTHON=1
-ENV UV_CACHE_DIR=/.cache/uv
+ENV UV_NO_CACHE=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
