@@ -57,7 +57,7 @@ docker pull blakadder/docker-tasmota
 If you have a `user_config_override.h` or `platformio_override.ini` file with your custom settings, you will need to put them under `Tasmota/tasmota`.
 
 4. From the same directory run to compile the desired build   
-`docker run -ti --rm -v $(pwd)/Tasmota:/tasmota -e HOST_UID=$UID -e HOST_GID=$GID docker-tasmota -e tasmota-PT`
+`docker run -ti --rm -v $(pwd)/Tasmota:/tasmota -e HOST_UID=$UID -e HOST_GID=$GID blakadder/docker-tasmota -e tasmota-PT`
 
 > The container runs as root to avoid permission issues with PlatformIO. The `HOST_UID` and `HOST_GID` environment variables ensure that the compiled firmware files have the correct ownership for your host user.
 
