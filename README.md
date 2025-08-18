@@ -61,11 +61,6 @@ If you have a `user_config_override.h` or `platformio_override.ini` file with yo
 
 > The container runs as root to avoid permission issues with PlatformIO. The `HOST_UID` and `HOST_GID` environment variables ensure that the compiled firmware files have the correct ownership for your host user.
 
-> **Note for macOS users:** If you encounter permission errors with the above command, try running without the `-u $UID:$GID` flag:
-> ```
-> docker run -ti --rm -v $(pwd)/Tasmota:/tasmota docker-tasmota -e tasmota-PT
-> ```
-
 > `-e <buildname>` where <buildname> can be any of the [builds listed in platformio.ini](https://github.com/arendst/Tasmota/blob/063611314777d4dd9dc8c25905f19f8b25f510aa/platformio.ini#L18). If you don't define a build then ***every*** build will get compiled.
 
 5. When compiling finishes you should have the compiled binary and gzipped version in `Tasmota/build_output/firmware` which can be flashed on your devices.
@@ -85,11 +80,4 @@ Build it and run:
 docker run -ti --rm \
 -v $(pwd)/Tasmota:/tasmota \
 -e HOST_UID=$UID -e HOST_GID=$GID docker-tasmota
-```
-
-**Note for macOS users:** If you encounter permission errors, remove the `-u $UID:$GID` line:
-```docker
-docker run -ti --rm \
--v $(pwd)/Tasmota:/tasmota \
-docker-tasmota
 ```
