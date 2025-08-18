@@ -13,12 +13,7 @@ ENV UV_SYSTEM_PYTHON=1
 ENV UV_NO_CACHE=1
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git wget curl flex bison gperf cmake ninja-build ccache \
-    libffi-dev libssl-dev dfu-util libusb-1.0-0 \
-    python3-dev python3-venv build-essential \
-    gcc g++ make pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Install PlatformIO and dependencies globally
 RUN uv pip install \
