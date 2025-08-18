@@ -6,11 +6,7 @@ LABEL description="Docker Container with a complete build environment for Tasmot
       organization="https://github.com/tasmota"
 
 # Install uv package manager
-RUN pip install --upgrade pip uv
-
-# Configure uv environment variables
-ENV UV_SYSTEM_PYTHON=1
-ENV UV_CACHE_DIR=/.cache/uv
+RUN pip install uv
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -30,25 +26,21 @@ RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list
     rm /etc/apt/preferences.d/testing && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies system-wide
-RUN uv pip install --upgrade \
+# Install Python dependencies system-wide with uv
+RUN uv pip install \
     click setuptools wheel virtualenv pyserial \
     cryptography pyparsing pyelftools esp-idf-size \
-    platformio
+    https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
 
 # Create base directories with proper permissions
-RUN mkdir -p /.platformio /.cache /.local /tmp \
-    && chmod -R 777 /.platformio /.cache /.local /tmp \
+RUN mkdir -p /.platformio /.platformio/penv /.cache /.local /tmp \
+    && chmod -R 777 /.platformio /.platformio/penv /.cache /.local /tmp \
                     /usr/local/lib /usr/local/bin
 
-# Pre-create and configure penv for ESP-IDF tools
-RUN mkdir -p /.platformio/penv && \
-    python3 -m venv /.platformio/penv && \
-    /.platformio/penv/bin/pip install --upgrade pip && \
+# Pre-create and configure penv with pip not with uv to avoid permission issues 
+RUN python3 -m venv /.platformio/penv && \
     /.platformio/penv/bin/pip install \
-        click setuptools wheel virtualenv pyserial \
-        cryptography pyparsing pyelftools && \
-    chmod -R 777 /.platformio/penv
+        setuptools wheel virtualenv
 
 # Copy project
 COPY init_pio_tasmota /init_pio_tasmota
@@ -60,8 +52,7 @@ RUN cd /init_pio_tasmota && \
     pio run && \
     cd ../ && \
     rm -fr init_pio_tasmota && \
-    cp -r /root/.platformio / && \
-    chmod -R 777 /.platformio /.cache /.local
+    cp -r /root/.platformio /
 
 COPY entrypoint.sh /entrypoint.sh
 
