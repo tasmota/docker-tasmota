@@ -20,17 +20,6 @@ RUN apt-get update && apt-get install -y \
     gcc g++ make pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Install GCC 13 from Debian testing to support GLIBCXX_3.4.32 (required for mklittlefs)
-RUN echo "deb http://deb.debian.org/debian testing main" > /etc/apt/sources.list.d/testing.list && \
-    echo "Package: *" > /etc/apt/preferences.d/testing && \
-    echo "Pin: release a=testing" >> /etc/apt/preferences.d/testing && \
-    echo "Pin-Priority: 50" >> /etc/apt/preferences.d/testing && \
-    apt-get update && \
-    apt-get install -y -t testing gcc-13 g++-13 libstdc++6 && \
-    rm /etc/apt/sources.list.d/testing.list && \
-    rm /etc/apt/preferences.d/testing && \
-    rm -rf /var/lib/apt/lists/*
-
 # Install PlatformIO and dependencies globally
 RUN uv pip install \
     click setuptools wheel virtualenv pyserial \
