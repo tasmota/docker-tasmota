@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.12-slim
 
 LABEL description="Docker Container with a complete build environment for Tasmota using PlatformIO" \
       version="15.0" \
@@ -14,9 +14,10 @@ ENV UV_NO_CACHE=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git wget flex bison gperf cmake ninja-build ccache \
+    git wget curl flex bison gperf cmake ninja-build ccache \
     libffi-dev libssl-dev dfu-util libusb-1.0-0 \
     python3-dev python3-venv build-essential \
+    gcc g++ make pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GCC 13 from Debian testing to support GLIBCXX_3.4.32 (required for mklittlefs)

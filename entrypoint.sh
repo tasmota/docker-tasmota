@@ -14,7 +14,6 @@ if [ -d $TASMOTA_VOLUME ]; then
     
     # Fix ownership of build output files to match the host user
     if [ -n "$HOST_UID" ] && [ -n "$HOST_GID" ]; then
-        echo "Fixing file ownership..."
         chown -R $HOST_UID:$HOST_GID build_output/ 2>/dev/null || true
     fi
     
