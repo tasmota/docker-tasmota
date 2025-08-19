@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 LABEL description="Docker Container with a build environment for Tasmota using PlatformIO" \
       version="15.0" \
