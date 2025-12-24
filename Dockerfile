@@ -12,6 +12,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_NO_CACHE=1
 
+# Set GITHUB_ACTIONS to bypass internet connectivity check in penv_setup.py
+ENV GITHUB_ACTIONS=true
+
 # Install needed git package
 RUN apt-get update && apt-get install -y --no-install-recommends git && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
