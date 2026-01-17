@@ -15,8 +15,11 @@ ENV UV_NO_CACHE=1
 # Set GITHUB_ACTIONS to bypass internet connectivity check in penv_setup.py
 ENV GITHUB_ACTIONS=true
 
-# Install needed git package
-RUN apt-get update && apt-get install -y --no-install-recommends git && \
+# Install git and build dependencies required for Python packages (gcc for fatfs-ng, littlefs-python)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    python3-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install pio core
