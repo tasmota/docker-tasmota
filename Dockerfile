@@ -17,9 +17,7 @@ ENV GITHUB_ACTIONS=true
 
 # Install git and build dependencies required for Python packages (gcc for fatfs-ng, littlefs-python)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    build-essential \
-    python3-dev && \
+    git && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install pio core
