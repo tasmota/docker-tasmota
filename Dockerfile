@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install pio core
-RUN uv pip install https://github.com/Jason2866/platformio-core/archive/refs/tags/v6.1.18.zip
+RUN uv pip install https://github.com/pioarduino/platformio-core/archive/refs/tags/v6.1.19.zip
 
 COPY entrypoint.sh /entrypoint.sh
 
