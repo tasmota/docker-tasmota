@@ -1,6 +1,6 @@
-FROM python:3.13-slim
+FROM python:3.14-slim
 
-LABEL description="Docker Container with a build environment for Tasmota using PlatformIO" \
+LABEL description="Docker Container with a build environment for Tasmota using pioarduino" \
       version="15.0" \
       maintainer="blakadder_" \
       organization="https://github.com/tasmota"
@@ -15,7 +15,7 @@ ENV UV_NO_CACHE=1
 # Set GITHUB_ACTIONS to bypass internet connectivity check in penv_setup.py
 ENV GITHUB_ACTIONS=true
 
-# Install git and build dependencies required for Python packages (gcc for fatfs-ng, littlefs-python)
+# Install git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
