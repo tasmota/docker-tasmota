@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install pio core
-RUN uv pip install pioarduino==6.2.0
+RUN uv pip install pioarduino==6.2.0.post1
 
 COPY entrypoint.sh /entrypoint.sh
 
